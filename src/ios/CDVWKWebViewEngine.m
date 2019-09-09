@@ -24,6 +24,8 @@
 
 #import <objc/message.h>
 
+#import <MobileCoreServices/MobileCoreServices.h>
+
 #define CDV_BRIDGE_NAME @"cordova"
 #define CDV_WKWEBVIEW_FILE_URL_LOAD_SELECTOR @"loadFileURL:allowingReadAccessToURL:"
 
@@ -36,11 +38,55 @@
 @end
 
 
+//////// MSFILE-Scheme
+@interface MSFILEScheme : NSObject <WKURLSchemeHandler> {}
+@end
+
+@implementation MSFILEScheme
+
+- (void)webView:(WKWebView *)webView startURLSchemeTask:(id <WKURLSchemeTask>)task
+API_AVAILABLE(ios(11.0)){
+
+        // Get url with scheme file instead of msfile
+        NSURLComponents* urlComponents = [NSURLComponents componentsWithURL:task.request.URL resolvingAgainstBaseURL:NO];
+        urlComponents.scheme = @"file";
+
+        // Get mime type from extension
+        NSString * UTI = (__bridge_transfer NSString *)UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, (__bridge CFStringRef)urlComponents.path.pathExtension, NULL);
+        NSString *contentType = (__bridge_transfer NSString *)UTTypeCopyPreferredTagWithClass((__bridge CFStringRef)UTI, kUTTagClassMIMEType);
+
+        // Get data from url
+        NSError* error = nil;
+        NSData* data = [NSData dataWithContentsOfURL:urlComponents.URL options:NSDataReadingMappedIfSafe error:&error];
+        if (error) {
+            // Data cannot be requested
+            [task didFailWithError:error];
+            return;
+        }
+
+        // Send response & data
+        NSURLResponse* response = [ [ NSURLResponse alloc ] initWithURL: task.request.URL MIMEType:contentType expectedContentLength: data.length textEncodingName: nil ];
+        [task didReceiveResponse: response ];
+        [task didReceiveData: data ];
+
+        [task didFinish ];
+}
+
+- (void)webView:(WKWebView *)webView stopURLSchemeTask:(id <WKURLSchemeTask>)task
+API_AVAILABLE(ios(11.0)){
+}
+
+@end
+//////// MSFILE-Scheme (end)
+
 @interface CDVWKWebViewEngine ()
 
 @property (nonatomic, strong, readwrite) UIView* engineWebView;
 @property (nonatomic, strong, readwrite) id <WKUIDelegate> uiDelegate;
 @property (nonatomic, weak) id <WKScriptMessageHandler> weakScriptMessageHandler;
+//////// MSFILE-Scheme
+@property (nonatomic, strong, readwrite) id <WKURLSchemeHandler> schemeHandler;
+//////// MSFILE-Scheme (end)
 
 @end
 
@@ -50,6 +96,9 @@
 @implementation CDVWKWebViewEngine
 
 @synthesize engineWebView = _engineWebView;
+//////// MSFILE-Scheme
+@synthesize schemeHandler = _schemeHandler;
+//////// MSFILE-Scheme (end)
 
 - (instancetype)initWithFrame:(CGRect)frame
 {
@@ -59,7 +108,25 @@
             return nil;
         }
 
-        self.engineWebView = [[WKWebView alloc] initWithFrame:frame];
+        //////// WKWebView-iOS12-only
+        if ( !@available(iOS 12.0, *)) {
+            self.engineWebView = [[UIWebView alloc] initWithFrame:frame];
+        } else {
+            self.engineWebView = [[WKWebView alloc] initWithFrame:frame];
+        }
+        //////// WKWebView-iOS12-only
+
+        //////// MSFILE-Scheme
+        self.schemeHandler =[[MSFILEScheme alloc] init];
+        //////// MSFILE-Scheme (end)`,
+
+
+        // setURLSchemeHandler
+        'configuration.userContentController = userContentController;': `configuration.userContentController = userContentController;
+
+    if (@available(iOS 11.0, *)) {
+        [ configuration setURLSchemeHandler:self.schemeHandler forURLScheme:@"${config.customFileUrlScheme}" ];
+    }
     }
 
     return self;
@@ -82,6 +149,12 @@
 
 - (void)pluginInitialize
 {
+
+    //////// WKWebView-iOS12-only
+    if (! @available(iOS 12.0, *)) {
+        return;
+    }
+    //////// WKWebView-iOS12-only (end)
     // viewController would be available now. we attempt to set all possible delegates to it, by default
     NSDictionary* settings = self.commandDelegate.settings;
 
