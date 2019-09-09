@@ -118,15 +118,7 @@ API_AVAILABLE(ios(11.0)){
 
         //////// MSFILE-Scheme
         self.schemeHandler =[[MSFILEScheme alloc] init];
-        //////// MSFILE-Scheme (end)`,
-
-
-        // setURLSchemeHandler
-        configuration.userContentController = userContentController;
-
-    if (@available(iOS 11.0, *)) {
-        [ configuration setURLSchemeHandler:self.schemeHandler forURLScheme:@"${config.customFileUrlScheme}" ];
-    }
+        //////// MSFILE-Scheme (end)
     }
 
     return self;
@@ -167,6 +159,10 @@ API_AVAILABLE(ios(11.0)){
 
     WKWebViewConfiguration* configuration = [self createConfigurationFromSettings:settings];
     configuration.userContentController = userContentController;
+
+    if (@available(iOS 11.0, *)) {
+        [ configuration setURLSchemeHandler:self.schemeHandler forURLScheme:@"msfile" ];
+    }
 
     // re-create WKWebView, since we need to update configuration
     WKWebView* wkWebView = [[WKWebView alloc] initWithFrame:self.engineWebView.frame configuration:configuration];
