@@ -122,7 +122,7 @@ API_AVAILABLE(ios(11.0)){
 
 
         // setURLSchemeHandler
-        'configuration.userContentController = userContentController;': `configuration.userContentController = userContentController;
+        configuration.userContentController = userContentController;
 
     if (@available(iOS 11.0, *)) {
         [ configuration setURLSchemeHandler:self.schemeHandler forURLScheme:@"${config.customFileUrlScheme}" ];
