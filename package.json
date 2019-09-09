@@ -5,7 +5,7 @@
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/etienneMobileSpot/cordova-plugin-wkwebview-engine"
+    "url": "https://github.com/apache/cordova-plugin-wkwebview-engine-ms"
   },
   "bugs": {
     "url": "https://github.com/etienneMobileSpot/cordova-plugin-wkwebview-engine"
