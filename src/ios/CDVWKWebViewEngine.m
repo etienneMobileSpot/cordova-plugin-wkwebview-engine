@@ -103,6 +103,11 @@ API_AVAILABLE(ios(11.0)){
 - (instancetype)initWithFrame:(CGRect)frame
 {
     self = [super init];
+
+    if (! @available(iOS 12.0, *)) {
+        return self;
+    }
+    
     if (self) {
         if (NSClassFromString(@"WKWebView") == nil) {
             return nil;
