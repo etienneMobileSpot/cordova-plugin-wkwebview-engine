@@ -449,17 +449,11 @@ static void * KVOContext = &KVOContext;
 
 - (void)webView:(WKWebView*)theWebView didFailProvisionalNavigation:(WKNavigation*)navigation withError:(NSError*)error
 {
-    if (! @available(iOS 12.0, *)) {
-        return;
-    }
     [self webView:theWebView didFailNavigation:navigation withError:error];
 }
 
 - (void)webView:(WKWebView*)theWebView didFailNavigation:(WKNavigation*)navigation withError:(NSError*)error
 {
-    if (! @available(iOS 12.0, *)) {
-        return;
-    }
     CDVViewController* vc = (CDVViewController*)self.viewController;
     [CDVUserAgentUtil releaseLock:vc.userAgentLockToken];
 
@@ -476,9 +470,6 @@ static void * KVOContext = &KVOContext;
 
 - (void)webViewWebContentProcessDidTerminate:(WKWebView *)webView
 {
-    if (! @available(iOS 12.0, *)) {
-        return;
-    }
     [webView reload];
 }
 
