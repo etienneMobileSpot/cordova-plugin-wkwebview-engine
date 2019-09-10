@@ -45,7 +45,7 @@
 @implementation MSFILEScheme
 
 - (void)webView:(WKWebView *)webView startURLSchemeTask:(id <WKURLSchemeTask>)task
-API_AVAILABLE(ios(11.0)){
+API_AVAILABLE(ios(12.0)){
 
         // Get url with scheme file instead of msfile
         NSURLComponents* urlComponents = [NSURLComponents componentsWithURL:task.request.URL resolvingAgainstBaseURL:NO];
@@ -73,7 +73,7 @@ API_AVAILABLE(ios(11.0)){
 }
 
 - (void)webView:(WKWebView *)webView stopURLSchemeTask:(id <WKURLSchemeTask>)task
-API_AVAILABLE(ios(11.0)){
+API_AVAILABLE(ios(12.0)){
 }
 
 @end
@@ -160,7 +160,7 @@ API_AVAILABLE(ios(11.0)){
     WKWebViewConfiguration* configuration = [self createConfigurationFromSettings:settings];
     configuration.userContentController = userContentController;
 
-    if (@available(iOS 11.0, *)) {
+    if (@available(iOS 12.0, *)) {
         [ configuration setURLSchemeHandler:self.schemeHandler forURLScheme:@"msfile" ];
     }
 
